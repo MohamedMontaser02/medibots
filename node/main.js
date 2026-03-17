@@ -59,7 +59,7 @@ app.get('/move/:room', (req, res) => {
     return res.status(400).json({ error: 'Invalid room. Use: home, room1, room2' });
   }
 
-  client.publish('esp32', room, { qos: 1 }, (err) => {
+  client.publish('esp32/location', room, { qos: 1 }, (err) => {
     if (err) {
       console.error('[MQTT] Publish error:', err);
       return res.status(500).json({ error: 'MQTT publish failed' });
