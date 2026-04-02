@@ -3,6 +3,7 @@ const mqtt    = require('mqtt');
 const cors    = require('cors');
 const path    = require('path');
 const os      = require('os');
+const fs      = require('fs');
 
 const app  = express();
 const PORT = 80;
@@ -10,8 +11,15 @@ const PORT = 80;
 app.use(cors());
 app.use(express.json());
 
-// ── Serve React frontend ──
-app.use(express.static(path.join(__dirname, 'client', 'dist')));
+// ── Resolve React build path (local dev vs Pi deployment) ──
+const DIST_CANDIDATES = [
+  path.join(__dirname, 'client', 'dist'),   // local:  node/client/dist
+  path.join(__dirname, '..', 'dist'),       // Pi:     medibots/dist
+];
+const DIST_DIR = DIST_CANDIDATES.find(d => fs.existsSync(d)) || DIST_CANDIDATES[0];
+console.log(`[STATIC] Serving frontend from ${DIST_DIR}`);
+
+app.use(express.static(DIST_DIR));
 
 // ── Find own IP dynamically ──
 function getOwnIP() {
@@ -165,7 +173,7 @@ app.get('/health', (req, res) => {
 
 // ── Catch-all: serve React for any route ──
 app.use((req, res) => {
-  res.sendFile(path.join(__dirname, 'client', 'dist', 'index.html'));
+  res.sendFile(path.join(DIST_DIR, 'index.html'));
 });
 
 
