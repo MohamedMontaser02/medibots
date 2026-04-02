@@ -164,9 +164,12 @@ app.get('/health', (req, res) => {
 });
 
 // ── Catch-all: serve React for any route ──
-app.get('*', (req, res) => {
+app.use((req, res) => {
   res.sendFile(path.join(__dirname, 'client', 'dist', 'index.html'));
 });
+
+
+
 
 // ── Start server ──
 app.listen(PORT, '0.0.0.0', () => {
